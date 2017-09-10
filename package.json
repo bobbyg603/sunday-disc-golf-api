@@ -1,0 +1,19 @@
+{
+  "name": "sunday-disc-golf-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "api/players/get/index.js",
+  "scripts": {
+    "start": "node api/players/get/index.js",
+    "test": "./node_modules/jasmine/bin/jasmine.js"
+  },
+  "author": "@bobbyg603",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-awslambda": "^0.4.0",
+    "gulp-zip": "^4.0.0",
+    "jasmine": "^2.8.0",
+    "jasmine-spec-reporter": "^4.2.1"
+  }
+}
