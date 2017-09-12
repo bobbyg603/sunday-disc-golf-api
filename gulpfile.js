@@ -5,15 +5,16 @@ const lambda = require('gulp-awslambda');
 const zip = require('gulp-zip');
 
 const del = require('del');
+const fs = require('fs');
 const path = require('path');
-const fs = require("fs");
+const merge = require('merge-stream');
 
 const opts = { region: 'us-east-1' };
 const distFolder = "./dist";
 const tmpFolder = distFolder + "/tmp";
-const lambdaFunctionZipNameMap = [
-    "authentication_post.zip", "PostAuthenticate",
-    "players_get.zip", "GetPlayers"
+const lambdaFunctionNameZipFileMap = [
+    { key: "PostAuthenticate", value: "authenticate_post.zip" },
+    { key: "GetPlayers", value: "players_get.zip" }
 ]
 
 gulp.task('clean', function () {
@@ -48,23 +49,29 @@ gulp.task('install', ['clean', 'copy'], function () {
 
 gulp.task('zip', ['clean', 'copy', 'install'], function () {
     const folders = getFolders(tmpFolder);
-    const tasks = [].concat(folders.map(function (childFolder) {
+    const tasks = folders.map(function (childFolder) {
         const grandChildFolders = getFolders(path.join(tmpFolder, childFolder));
         return grandChildFolders.map(function (grandChildFolder) {
             return gulp.src(path.join(tmpFolder, childFolder, grandChildFolder, '/**/*'))
                 .pipe(zip(childFolder + "_" + grandChildFolder + ".zip"))
                 .pipe(dest(distFolder))
         });
-    }));
-    return tasks;
+    });
+    return merge(...tasks);
 })
 
 gulp.task('publish', ['clean', 'copy', 'install', 'zip'], function () {
     const zipFiles = getFiles(distFolder);
     const tasks = zipFiles.map(function(zipFile) {
-
+        const lambdaFunctionName = lambdaFunctionNameZipFileMap.find(obj => obj.value == zipFile).key;
+        if(lambdaFunctionName) {
+            return gulp.src(path.join(distFolder, zipFile))
+                .pipe(lambda(lambdaFunctionName, opts));
+        } else {
+            console.warn(zipFile, "not found in lambdaZipFileFunctionNameMap!");
+        }
     });
-    return tasks;    
+    return merge(...tasks);    
 });
 
 gulp.task('default', ['publish']);
