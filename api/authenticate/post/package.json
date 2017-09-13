@@ -1,0 +1,12 @@
+{
+    "name": "sunday-disc-golf-api-authenticate-post",
+    "version": "1.0.0",
+    "description": "",
+    "main": "./index.js",
+    "author": "@bobbyg603",
+    "license": "MIT",
+    "dependencies": {
+      "jsonwebtoken": "^8.0.1"
+    }
+  }
+  
