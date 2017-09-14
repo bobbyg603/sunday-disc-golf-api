@@ -1,0 +1,78 @@
+service: sdg-players-api
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  memorySize: 512
+  profile: serverless
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  deploymentBucket: 
+    name: com.sunday-disc-golf-api.${self:provider.region}.deploys
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  create:
+    handler: create.create
+    events:
+      - http:
+          path: players
+          method: post
+          cors: true  
+
+  list:
+    handler: list.list
+    events:
+      - http:
+          path: players
+          method: get
+          cors: true
+  
+  get:
+    handler: get.get
+    events:
+      - http:
+          path: players/{id}
+          method: get
+          cors: true
+  
+  update:
+    handler: update.update
+    events:
+      - http:
+          path: players/{id}
+          method: put
+          cors: true
+  
+  delete:
+    handler: delete.delete
+    events:
+      - http:
+          path: players/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    playersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: username
+            AttributeType: S
+        KeySchema:
+          - AttributeName: username
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
