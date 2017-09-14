@@ -1,16 +1,50 @@
 'use strict';
 
+const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
 module.exports.update = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'update a player',
-      input: event,
-    }),
+  const timestamp = new Date().getTime();
+
+  if (!event.pathParameters.username) {
+    console.error('Validation Failed');
+    callback(new Error('Invalid username in path.'));
+    return;
+  }
+
+  if (!event.username || !event.password) {
+    console.error('Validation Failed');
+    callback(new Error('Invalid body.'));
+    return;
+  }
+
+  const params = {
+    TableName: process.env.DYNAMODB_TABLE,
+    Key: {
+      username: event.pathParameters.username,
+    },
+    ExpressionAttributeNames: {
+      '#user_password': 'password'
+    },
+    ExpressionAttributeValues: {
+      ':password': event.password,
+      ':updatedAt': timestamp
+    },
+    UpdateExpression: 'SET #user_password = :password, updatedAt = :updatedAt',
+    ReturnValues: 'ALL_NEW',
   };
 
-  callback(null, response);
+  dynamoDb.update(params, (error, result) => {
+    if (error) {
+      console.error(error);
+      callback(new Error('Couldn\'t update the player.'));
+      return;
+    }
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify(result.Attributes),
+    };
+    callback(null, response);
+  });
 };
