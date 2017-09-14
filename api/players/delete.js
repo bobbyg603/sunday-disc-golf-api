@@ -1,16 +1,27 @@
 'use strict';
 
+const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
+
 module.exports.delete = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'delete a player',
-      input: event,
-    }),
+  const params = {
+    TableName: process.env.DYNAMODB_TABLE,
+    Key: {
+      username: event.pathParameters.username,
+    },
   };
 
-  callback(null, response);
+  dynamoDb.delete(params, (error) => {
+    if (error) {
+      console.error(error);
+      callback(new Error('Couldn\'t remove the player.'));
+      return;
+    }
 
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+    const response = {
+      statusCode: 200,
+      body: JSON.stringify({}),
+    };
+    callback(null, response);
+  });
 };
