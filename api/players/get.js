@@ -4,10 +4,31 @@ const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-depe
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 module.exports.get = (event, context, callback) => {
+
+  const data = JSON.parse(event.body);
+  let username = "";
+
+  if(event.pathParameters) {
+    username = event.pathParameters.username;
+  } else if (data) {
+    username = data.username;
+  } else {
+    const response = {
+      statusCode: 400,
+      headers: {
+        "Access-Control-Allow-Origin": "*"
+      },
+      body: JSON.stringify({
+        message: 'No username provided',
+      }),
+    };
+    callback(null, response);
+  }
+
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     Key: {
-      username: event.pathParameters.username,
+      username: username,
     },
   };
 
