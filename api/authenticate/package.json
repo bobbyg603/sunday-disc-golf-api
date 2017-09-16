@@ -1,0 +1,14 @@
+{
+  "name": "sdg-authenticate-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "player.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "@bobbyg603",
+  "license": "MIT",
+  "dependencies": {
+    "jsonwebtoken": "^8.0.1"
+  }
+}

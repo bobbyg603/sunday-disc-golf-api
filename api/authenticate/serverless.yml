@@ -8,6 +8,7 @@ provider:
   environment:
     PLAYERS_LAMBDA_FN_NAME: sdg-players-api-${opt:stage, self:provider.stage}-get
     PLAYERS_LAMBDA_FN_REGION: ${self:provider.region}
+    JWT_SECRET: ${opt:secret}
   deploymentBucket: 
     name: com.sunday-disc-golf-api.${self:provider.region}.deploys
   iamRoleStatements:

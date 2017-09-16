@@ -4,6 +4,7 @@ const aws = require('aws-sdk');
 const lambda = new aws.Lambda({
   region: process.env.PLAYERS_LAMBDA_FN_REGION
 });
+const jwt = require('jsonwebtoken');
 
 module.exports.player = (event, context, callback) => {
 
@@ -26,14 +27,17 @@ module.exports.player = (event, context, callback) => {
     if (lambdaData.Payload) {
       const lambdaResponseBody = JSON.parse(JSON.parse(lambdaData.Payload).body)
       if (lambdaResponseBody.password == requestData.password) {
-        const token = "todobg";
+        const token = jwt.sign(requestData, process.env.JWT_SECRET, {		
+          expiresIn: 1440 // expires in 24 hours		
+        });
         const response = {
           statusCode: 200,
           headers: {
             "Access-Control-Allow-Origin": "*"
           },
           body: JSON.stringify({
-            message: 'Success',
+            success: true,
+            message: '',
             token: token
           }),
         };
@@ -45,6 +49,7 @@ module.exports.player = (event, context, callback) => {
             "Access-Control-Allow-Origin": "*"
           },
           body: JSON.stringify({
+            success: false,
             message: 'Invalid password',
             input: requestData,
           }),

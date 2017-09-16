@@ -14,8 +14,5 @@
     "jasmine-spec-reporter": "^4.2.1",
     "serverless": "^1.21.1"
   },
-  "dependencies": {
-    "jsonwebtoken": "^8.0.1",
-    "uuid": "^3.1.0"
-  }
+  "dependencies": {}
 }
