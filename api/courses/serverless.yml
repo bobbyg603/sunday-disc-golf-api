@@ -1,0 +1,62 @@
+service: sdg-courses-api
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  memorySize: 512
+  profile: serverless
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  deploymentBucket: 
+    name: com.sunday-disc-golf-api.${self:provider.region}.deploys
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  create:
+    handler: create.create
+    events:
+      - http:
+          path: courses
+          method: post
+          cors: true  
+
+  list:
+    handler: list.list
+    events:
+      - http:
+          path: courses
+          method: get
+          cors: true
+  
+  get:
+    handler: get.get
+    events:
+      - http:
+          path: courses/{courseName}
+          method: get
+          cors: true
+
+resources:
+  Resources:
+    playersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: courseName
+            AttributeType: S
+        KeySchema:
+          - AttributeName: courseName
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
