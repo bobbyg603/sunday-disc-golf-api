@@ -32,7 +32,7 @@
 //       "apiId": "0tcoh5p934"
 //     },
 //     "body":  {
-//         "courseName": "Henniker",
+//         "name": "Henniker",
 //         "holes": [{
 //             "number": 1,
 //             "par": 3,

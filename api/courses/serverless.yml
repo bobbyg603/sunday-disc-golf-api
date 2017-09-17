@@ -47,15 +47,15 @@ functions:
 
 resources:
   Resources:
-    playersTable:
+    coursesTable:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: ${self:provider.environment.DYNAMODB_TABLE}
         AttributeDefinitions:
-          - AttributeName: courseName
+          - AttributeName: name
             AttributeType: S
         KeySchema:
-          - AttributeName: courseName
+          - AttributeName: name
             KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1
