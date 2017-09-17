@@ -6,12 +6,12 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 module.exports.get = (event, context, callback) => {
 
   const data = JSON.parse(event.body);
-  let courseName = "";
+  let name = "";
 
   if(event.pathParameters) {
-    courseName = event.pathParameters.courseName;
+    name = event.pathParameters.name;
   } else if (data) {
-    courseName = data.courseName;
+    name = data.name;
   } else {
     const response = {
       statusCode: 400,
@@ -19,7 +19,7 @@ module.exports.get = (event, context, callback) => {
         "Access-Control-Allow-Origin": "*"
       },
       body: JSON.stringify({
-        message: 'No courseName provided',
+        message: 'No name provided',
       }),
     };
     callback(null, response);
@@ -28,7 +28,7 @@ module.exports.get = (event, context, callback) => {
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     Key: {
-      courseName: courseName,
+      name: name,
     },
   };
 
