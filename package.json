@@ -10,16 +10,9 @@
   "author": "@bobbyg603",
   "license": "MIT",
   "devDependencies": {
-    "del": "^3.0.0",
-    "gulp": "^3.9.1",
-    "gulp-awslambda": "^0.4.0",
-    "gulp-install": "^1.1.0",
-    "gulp-zip": "^4.0.0",
     "jasmine": "^2.8.0",
     "jasmine-spec-reporter": "^4.2.1",
-    "merge-stream": "^1.0.1"
+    "serverless": "^1.21.1"
   },
-  "dependencies": {
-    "jsonwebtoken": "^8.0.1"
-  }
+  "dependencies": {}
 }
