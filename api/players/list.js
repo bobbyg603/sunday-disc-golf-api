@@ -14,12 +14,17 @@ module.exports.list = (event, context, callback) => {
       return;
     }
 
+    const itemsMinusPassword = result.Items.map(item => {
+      item.password = "";
+      return item;
+    });
+
     const response = {
       statusCode: 200,
       headers: {
         "Access-Control-Allow-Origin": "*"
       },
-      body: JSON.stringify(result.Items),
+      body: JSON.stringify(itemsMinusPassword),
     };
     callback(null, response);
   });
