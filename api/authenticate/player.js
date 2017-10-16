@@ -1,10 +1,8 @@
 'use strict';
 
 const aws = require('aws-sdk');
-const lambda = new aws.Lambda({
-  region: process.env.PLAYERS_LAMBDA_FN_REGION
-});
 const jwt = require('jsonwebtoken');
+const dynamoDb = new aws.DynamoDB.DocumentClient();
 
 module.exports.player = (event, context, callback) => {
 
@@ -15,47 +13,50 @@ module.exports.player = (event, context, callback) => {
     callback(new Error('Username and/or password was not specified.'));
     return;
   }
-  lambda.invoke({
-    FunctionName: process.env.PLAYERS_LAMBDA_FN_NAME,
-    Payload: JSON.stringify(event, null, 2)
-  }, function (error, lambdaData) {
+
+  const params = {
+    TableName: process.env.DYNAMODB_TABLE,
+    Key: {
+      username: requestData.username,
+    },
+  };
+
+  dynamoDb.get(params, (error, result) => {
     if (error) {
       console.error(error);
-      callback(new Error('Couldn\'t authenticate the player.'));
+      callback(new Error('Couldn\'t fetch the player.'));
       return;
     }
-    if (lambdaData.Payload) {
-      const lambdaResponseBody = JSON.parse(JSON.parse(lambdaData.Payload).body)
-      if (lambdaResponseBody.password == requestData.password) {
-        const token = jwt.sign(requestData, process.env.JWT_SECRET, {		
-          expiresIn: 1440 // expires in 24 hours		
-        });
-        const response = {
-          statusCode: 200,
-          headers: {
-            "Access-Control-Allow-Origin": "*"
-          },
-          body: JSON.stringify({
-            success: true,
-            message: '',
-            token: token
-          }),
-        };
-        callback(null, response);
-      } else {
-        const response = {
-          statusCode: 403,
-          headers: {
-            "Access-Control-Allow-Origin": "*"
-          },
-          body: JSON.stringify({
-            success: false,
-            message: 'Invalid password',
-            input: requestData,
-          }),
-        };
-        callback(null, response);
-      }
+
+    if (result.Item.password == requestData.password) {
+      const token = jwt.sign(requestData, process.env.JWT_SECRET, {
+        expiresIn: 1440 // expires in 24 hours		
+      });
+      const response = {
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify({
+          success: true,
+          message: '',
+          token: token
+        }),
+      };
+      callback(null, response);
+    } else {
+      const response = {
+        statusCode: 403,
+        headers: {
+          "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify({
+          success: false,
+          message: 'Invalid password',
+          input: requestData,
+        }),
+      };
+      callback(null, response);
     }
   });
 };

@@ -38,13 +38,27 @@ module.exports.get = (event, context, callback) => {
       callback(new Error('Couldn\'t fetch the player.'));
       return;
     }
-    const response = {
-      statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*"
-      },
-      body: JSON.stringify(result.Item),
-    };
-    callback(null, response);
+    if(result.Item) {
+      result.Item.password = "";
+      const response = {
+        statusCode: 200,
+        headers: {
+          "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify(result.Item),
+      };
+      callback(null, response);
+    } else {
+      const response = {
+        statusCode: 404,
+        headers: {
+          "Access-Control-Allow-Origin": "*"
+        },
+        body: JSON.stringify({
+          message: "player " + username + " doesn't exist.",
+        }),
+      };
+      callback(null, response);
+    }
   });
 };

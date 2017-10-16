@@ -6,17 +6,20 @@ provider:
   memorySize: 512
   profile: serverless
   environment:
-    PLAYERS_LAMBDA_FN_NAME: sdg-players-api-${opt:stage, self:provider.stage}-get
-    PLAYERS_LAMBDA_FN_REGION: ${self:provider.region}
+    DYNAMODB_TABLE: sdg-players-api-${opt:stage, self:provider.stage}
     JWT_SECRET: ${opt:secret}
   deploymentBucket: 
     name: com.sunday-disc-golf-api.${self:provider.region}.deploys
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - lambda:InvokeFunction
-        - lambda:InvokeAsync
-      Resource: "arn:aws:lambda:${opt:region, self:provider.region}:*:function:${self:provider.environment.PLAYERS_LAMBDA_FN_NAME}"
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 functions:
   authenticate-player:
