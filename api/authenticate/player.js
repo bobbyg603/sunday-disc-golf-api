@@ -3,6 +3,7 @@
 const aws = require('aws-sdk');
 const jwt = require('jsonwebtoken');
 const dynamoDb = new aws.DynamoDB.DocumentClient();
+const bcrypt = require("bcryptjs");
 
 module.exports.player = (event, context, callback) => {
 
@@ -28,35 +29,34 @@ module.exports.player = (event, context, callback) => {
       return;
     }
 
-    if (result.Item.password == requestData.password) {
-      const token = jwt.sign(requestData, process.env.JWT_SECRET, {
-        expiresIn: 1440 // expires in 24 hours		
+    bcrypt.compare(requestData.password, result.Item.password)
+      .then(result => {
+        if (result) {
+          const token = jwt.sign(requestData, process.env.JWT_SECRET, {
+            expiresIn: 1440 // expires in 24 hours		
+          });
+          const response = {
+            statusCode: 200,
+            headers: {
+              "Access-Control-Allow-Origin": "*"
+            },
+            body: JSON.stringify({
+              message: 'Success',
+            }),
+          };
+          callback(null, response);
+        } else {
+          const response = {
+            statusCode: 401,
+            headers: {
+              "Access-Control-Allow-Origin": "*"
+            },
+            body: JSON.stringify({
+              message: 'Invalid password'
+            }),
+          };
+          callback(null, response);
+        }
       });
-      const response = {
-        statusCode: 200,
-        headers: {
-          "Access-Control-Allow-Origin": "*"
-        },
-        body: JSON.stringify({
-          success: true,
-          message: '',
-          token: token
-        }),
-      };
-      callback(null, response);
-    } else {
-      const response = {
-        statusCode: 403,
-        headers: {
-          "Access-Control-Allow-Origin": "*"
-        },
-        body: JSON.stringify({
-          success: false,
-          message: 'Invalid password',
-          input: requestData,
-        }),
-      };
-      callback(null, response);
-    }
   });
 };

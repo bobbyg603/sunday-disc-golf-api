@@ -1,15 +1,14 @@
 {
-  "name": "sdg-authenticate-api",
+  "name": "sdg-players-api",
   "version": "1.0.0",
   "description": "",
-  "main": "player.js",
+  "main": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "@bobbyg603",
   "license": "MIT",
   "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^8.0.1"
+    "bcryptjs": "^2.4.3"
   }
 }
