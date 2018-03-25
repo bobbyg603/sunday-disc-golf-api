@@ -42,6 +42,7 @@ module.exports.player = (event, context, callback) => {
             },
             body: JSON.stringify({
               message: 'Success',
+              token: token
             }),
           };
           callback(null, response);
